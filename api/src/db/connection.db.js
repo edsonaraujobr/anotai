@@ -1,7 +1,7 @@
 import { Sequelize } from "sequelize";
 
-export const database = new Sequelize('todo-list', 'root', 'root', {
-    host: 'mysql',
+export const database = new Sequelize('todo_list', 'root', 'root', {
+    host: 'localhost',
     dialect: 'mysql'
 })
 

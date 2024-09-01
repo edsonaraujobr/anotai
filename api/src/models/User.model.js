@@ -2,10 +2,15 @@ import { DataTypes } from 'sequelize';
 import { database } from '../db/connection.db.js';
 
 export const User = database.define('Users', {
-    email: {
-        type: DataTypes.STRING(100),
+    id: {
+        type: DataTypes.UUID,
         primaryKey: true,
         defaultValue: DataTypes.UUIDV4
+    },
+    email: {
+        type: DataTypes.STRING(100),
+        unique: true,
+        allowNull: false,
     },
     password: {
         type: DataTypes.STRING,
