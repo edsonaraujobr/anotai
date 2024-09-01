@@ -12,6 +12,9 @@ export const loginUser = async(req, res) => {
     try {
         const { email, password } = req.body;
 
+        if(!email || !password)
+            return res.status(400).json({ messageError: "Faltam parâmetros." });
+
         const user = await User.findOne({where: { email }});
 
         if(!user)
@@ -19,10 +22,9 @@ export const loginUser = async(req, res) => {
 
         const isMatch = await bcrypt.compare(password, user.password);
 
-        if (!isMatch) {
-            return res.status(401).json({ messageError: "Senha incorreta." });
-        }
-
+        if (!isMatch) 
+            return res.status(401).json({ messageError: "Usuário não encontrado." });
+        
         const token = jwt.sign(
             {
                 email: user.email,
@@ -49,22 +51,27 @@ export const loginUser = async(req, res) => {
 
 export const createUser = async(req, res) => {
     try {
-        const { email, password, full_name, photo } = req.body;
+        const { email, password, full_name} = req.body;
+        const photo = req.file ? req.file.filename : null;
 
         if(!email || !password || !full_name)
             return res.status(400).json({ messageError: "Faltam parâmetros." });
 
+        const existingUser = await User.findOne({ where: { email } });
+        if (existingUser) 
+            return res.status(409).json({ messageError: "O email já está em uso." });
+
         bcrypt.hash(password, saltRounds, async (err, hash) => {
             const user = {
                 email,
-                hash,
+                password: hash,
                 full_name,
                 photo
             };
     
             await User.sync();
             await User.create(user);
-            return res.status(201).json({ messageSucess: "Usuário criado com sucesso." });
+            return res.status(201).json({ messageSuccess: "Usuário criado com sucesso." });
         })
 
     } catch(error) {
@@ -75,12 +82,16 @@ export const createUser = async(req, res) => {
 export const updateUser = async(req, res) => {
     try {
         const { id } = req.params;
-        const { email, password, full_name, photo } = req.body;
+        const { email, password, full_name } = req.body;
+        const photo = req.file ? req.file.filename : null;
 
         const updateFields = {};
         if (full_name) updateFields.full_name = full_name
         if (email) updateFields.email = email
-        if (password) updateFields.password = password
+        if (password) {
+            const hashedPassword = await bcrypt.hash(password, saltRounds);
+            updateFields.password = hashedPassword;
+        }
         if (photo) updateFields.photo = photo
 
         if (Object.keys(updateFields).length === 0)
@@ -93,7 +104,7 @@ export const updateUser = async(req, res) => {
         if (!updated)
             return res.status(404).json({ messageError: "Usuário não encontrado." });
 
-        return res.status(200).json({ messageSucess: "Usuário atualizado com sucesso" });
+        return res.status(200).json({ messageSuccess: "Usuário atualizado com sucesso" });
 
     } catch (error) {
         return res.status(500).json({ messageError: "Usuário não atualizado." , error});

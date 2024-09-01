@@ -2,13 +2,13 @@ import { DataTypes } from 'sequelize';
 import { database } from '../db/connection.db.js';
 import { User } from './User.model.js';
 
-export const Task = database.define('Tasks', {
+export const Task = database.define('Task', {  
     id: {
         type: DataTypes.UUID,
         primaryKey: true,
         defaultValue: DataTypes.UUIDV4
     },
-    tittle: {
+    title: {
         type: DataTypes.STRING(100),
         allowNull: false,
     },
@@ -16,15 +16,19 @@ export const Task = database.define('Tasks', {
         type: DataTypes.TEXT,
         allowNull: false,
     },
-    idUser: {
-        type: DataTypes.STRING(100),
+    completed: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
+    userId: { 
+        type: DataTypes.UUID,
         allowNull: false,
         references: {
             model: User,
-            key: 'email'
+            key: 'id'
         }
     }
-})
+});
 
-User.hasMany(Task, {foreign: 'idUser'});
-Task.belongsTo(User, {foreign: 'idUser'});
+User.hasMany(Task, { foreignKey: 'userId' });
+Task.belongsTo(User, { foreignKey: 'userId' });

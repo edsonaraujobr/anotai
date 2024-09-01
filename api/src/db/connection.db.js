@@ -1,8 +1,9 @@
 import { Sequelize } from "sequelize";
 
 export const database = new Sequelize('todo_list', 'root', 'root', {
-    host: 'localhost',
-    dialect: 'mysql'
+    host: 'localhost', 
+    dialect: 'mysql',
+    port: 3306
 })
 
 try {
