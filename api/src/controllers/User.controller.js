@@ -51,25 +51,27 @@ export const loginUser = async(req, res) => {
 
 export const createUser = async(req, res) => {
     try {
-        const { email, password, full_name} = req.body;
+        const { email, password, fullName} = req.body;
         const photo = req.file ? req.file.filename : null;
 
-        if(!email || !password || !full_name)
+        if(!email || !password || !fullName)
             return res.status(400).json({ messageError: "Faltam parâmetros." });
+
+        await User.sync();
 
         const existingUser = await User.findOne({ where: { email } });
         if (existingUser) 
             return res.status(409).json({ messageError: "O email já está em uso." });
 
+
         bcrypt.hash(password, saltRounds, async (err, hash) => {
             const user = {
                 email,
                 password: hash,
-                full_name,
+                full_name: fullName,
                 photo
             };
     
-            await User.sync();
             await User.create(user);
             return res.status(201).json({ messageSuccess: "Usuário criado com sucesso." });
         })
