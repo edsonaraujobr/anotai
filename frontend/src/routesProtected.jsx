@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 
-function ProtectedRoute({ element: Component}) {
+function ProtectedRoute({ element }){
     const token = localStorage.getItem(`user_authToken`);
     const expiration = localStorage.getItem(`user_tokenExpiration`);
 
@@ -13,7 +13,7 @@ function ProtectedRoute({ element: Component}) {
         return now < expiration;
     }
 
-    return isTokenValid() ? <Component /> : <Navigate to={`/`} />;
+    return isTokenValid() ? element : <Navigate to={`/`} />;
 }
 
 export default ProtectedRoute;

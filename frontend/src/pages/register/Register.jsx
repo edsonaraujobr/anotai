@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "../../components/Input.jsx"
 import { useNavigate } from "react-router-dom"
 
@@ -10,8 +10,8 @@ export function Register() {
     const [passwordAgain, setPasswordAgain] = useState('');
     const [userCreated, setUserCreated] = useState(false)
     const [timeLeft, setTimeLeft] = useState(5);
-    const [alert, setAlert] = useState('');
-    const [viewAlert, setViewAlert] = useState(false);
+    const [notice, setNotice] = useState('');
+    const [viewNotice, setViewNotice] = useState(false);
 
     const userCreatedSucess = () => {
         setUserCreated(!userCreated)
@@ -21,22 +21,22 @@ export function Register() {
     }
 
     const handleChangeEmail = (e) => {
-        setFalseAlerts();
+        setFalseNotices();
         setEmail(e.target.value)
     }
 
     const handleChangeFullname = (e) => {
-        setFalseAlerts();
+        setFalseNotices();
         setFullname(e.target.value)
     }
 
     const handleChangePassword = (e) => {
-        setFalseAlerts();
+        setFalseNotices();
         setPassword(e.target.value)
     }
 
     const handleChangePasswordAgain = (e) => {
-        setFalseAlerts();
+        setFalseNotices();
         setPasswordAgain(e.target.value)
     }
 
@@ -44,10 +44,20 @@ export function Register() {
         return password === passwordAgain;
     }
     
-    const setFalseAlerts = () => {
-        setViewAlert(false);
+    const setFalseNotices = () => {
+        setViewNotice(false);
         setUserCreated(false);
     }
+
+    useEffect(() => {
+        const token = localStorage.getItem(`user_authToken`);
+        const tokenExpiration = localStorage.getItem(`user_tokenExpiration`);
+        
+        if (token && tokenExpiration) {
+          localStorage.removeItem(`user_authToken`);
+          localStorage.removeItem(`user_tokenExpiration`);
+        }
+    })
 
     const fetchRegister = async (e) => {
         e.preventDefault();
@@ -73,16 +83,16 @@ export function Register() {
                         });
                     }, 1000);
                 } else {
-                    setViewAlert(!viewAlert);
+                    setViewNotice(!viewNotice);
                     switch(response.status) {
                         case 400:
-                            setAlert("Preencha todos os campos.")
+                            setNotice("Preencha todos os campos.")
                             break;
                         case 409:
-                            setAlert("Já existe usuário com esse email.")
+                            setNotice("Já existe usuário com esse email.")
                             break;
                         default:
-                            setAlert("Tente novamente mais tarde.")
+                            setNotice("Tente novamente mais tarde.")
                             break;
                     }
                 }
@@ -152,9 +162,9 @@ export function Register() {
                             )
                         }
                         {
-                            viewAlert ? (
+                            viewNotice ? (
                                 <span className="flex flex-col justify-center items-center text-red-500">
-                                    {alert}
+                                    {notice}
                                 </span>
                             ) : (
                                 <></>

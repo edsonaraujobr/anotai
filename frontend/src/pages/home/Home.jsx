@@ -49,9 +49,32 @@ export function Home () {
         }
     };
 
+    useEffect(() => {
+        const token = localStorage.getItem('user_authToken');
+        const tokenExpiration = localStorage.getItem('user_tokenExpiration');
+        
+        if (token && tokenExpiration) {
+            const isExpired = Date.now() > tokenExpiration;
+            
+            if (isExpired) {
+                logout();
+            } else {
+                const timeout = setTimeout(() => {
+                    logout();
+                }, tokenExpiration - Date.now());
+                
+                return () => clearTimeout(timeout);
+            }
+        } else 
+            logout();
+    }, []);
+
     const logout = () => {
+        localStorage.removeItem('user_authToken');
+        localStorage.removeItem('user_tokenExpiration');
         navigate("/")
     }
+    
     return (
         <Dialog.Root>
             <div className='flex flex-col bg-gray-900 w-lvw h-lvh text-lime-500 fixed'>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "../../components/Input.jsx"
 import { useNavigate } from "react-router-dom"
 
@@ -6,33 +6,32 @@ export function Login () {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [alert, setAlert] = useState(false);
+    const [viewNotice, setviewNotice] = useState(false);
 
     const handleRegister = () => {
         navigate("/cadastro")
     }
 
     const handleChangeEmail = (e) => {
-        setFalseAlert()
+        setFalseNotice()
         setEmail(e.target.value)
     }
 
     const handleChangePassword = (e) => {
-        setFalseAlert()
+        setFalseNotice()
         setPassword(e.target.value)
     }
 
-    const setFalseAlert = () => {
-        setAlert(false)
+    const setFalseNotice = () => {
+        setviewNotice(false)
     }
     const userNotFound = () => {
-        setAlert(!alert)
+        setviewNotice(!viewNotice)
     }
 
     const fetchLogin = async (e) => {
         e.preventDefault();
         try {
-            console.log("chamou")
             const response = await fetch(`http://localhost:3030/user/login`, {
                 method: 'POST',
                 headers: {
@@ -42,6 +41,11 @@ export function Login () {
             });
     
             if (response.ok) {
+                const { result } = await response.json();
+                const decodedToken = JSON.parse(atob(result.token.split('.')[1]));
+                const expirationTime = decodedToken.exp * 1000; 
+                localStorage.setItem(`user_authToken`, result.token);
+                localStorage.setItem(`user_tokenExpiration`, expirationTime);
                 navigate(`/home`) 
             } else {
                 switch(response.status) {
@@ -59,6 +63,16 @@ export function Login () {
             alert('Erro ao conectar ao servidor:');
         }
     };
+
+    useEffect(() => {
+        const token = localStorage.getItem(`user_authToken`);
+        const tokenExpiration = localStorage.getItem(`user_tokenExpiration`);
+        
+        if (token && tokenExpiration) {
+          localStorage.removeItem(`user_authToken`);
+          localStorage.removeItem(`user_tokenExpiration`);
+        }
+    })
 
     return (
         <div className='fixed bg-gradient-to-r from-gray-900 to-gray-950 w-lvw h-lvh justify-center items-center flex flex-col  text-white '>
@@ -89,7 +103,7 @@ export function Login () {
                             <span className='cursor-pointer '>Esqueci a senha</span>
                         </div>
                         {
-                            alert ? (
+                            viewNotice ? (
                                 <span className="flex justify-center text-red-500">
                                     Usuário não encontrado
                                 </span>
