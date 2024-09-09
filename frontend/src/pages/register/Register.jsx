@@ -109,80 +109,75 @@ export function Register() {
     
     return (
         <>
-        <Toaster richColors/>
-        <div className='fixed top-0 bg-gradient-to-t from-gray-900 to-gray-950 w-lvw h-lvh justify-center items-center flex flex-col  text-white '>
-            <main className='flex gap-36'>
-                <section className='flex flex-col'>
-                <h2 className='font-black text-9xl text-lime-500'>AnotAi</h2>
-                <p className='text-xl text-lime-500'>O controle do dia em suas mãos.</p>
-                </section>
-                <section className='flex flex-col gap-8'>
-                <main className='flex flex-col w-96 gap-4 '>
-                    <form className='flex flex-col w-96 gap-4 ' onSubmit={fetchRegister}>
-                        <Input 
-                            type="email"
-                            placeholder="Email"
-                            onChange={(e) => handleChangeEmail(e)}
-                            value={email}
-                            required={true}
-                        />
-                        <Input 
-                            type="text"
-                            placeholder="Nome completo"
-                            onChange={(e) => handleChangeFullname(e)}
-                            value={fullName}
-                            required={true}
-                        />
-                        <Input 
-                            type="password"
-                            placeholder="Senha"
-                            onChange={(e) => handleChangePassword(e)}
-                            value={password}
-                            required={true}
-                        />
-                        <Input 
-                            type="password"
-                            placeholder="Repita a senha"
-                            onChange={(e) => handleChangePasswordAgain(e)}
-                            value={passwordAgain}
-                            required={true}
-                        />
-                        <button 
-                            type="submit" 
-                            className='bg-white rounded-md text-blue-950 hover:text-lime-700'> 
-                            Registrar 
-                        </button>
-                        {
-                            userCreated ? (
-                                <div className="flex flex-col justify-center items-center text-green-400">
-                                    <span >
-                                        Usuário criado com sucesso
+            <Toaster richColors/>
+            <div className='fixed top-0 bg-gradient-to-t from-gray-900 to-gray-950 w-full h-full flex justify-center items-center flex-col text-white'>
+                <div className='flex flex-col lg:flex-row gap-10 lg:gap-36 items-center lg:items-start'>
+                    <header className='flex flex-col items-center lg:items-start'>
+                        <h2 className='font-black text-7xl md:text-8xl lg:text-9xl text-lime-500'>AnotAi</h2>
+                        <p className='text-lg md:text-xl text-lime-500 mt-4'>O controle do dia em suas mãos.</p>
+                    </header>
+                    <main className='flex flex-col w-full max-w-sm gap-4'>
+                        <form className='flex flex-col w-full gap-4' onSubmit={fetchRegister}>
+                            <Input 
+                                type="email"
+                                placeholder="Email"
+                                onChange={(e) => handleChangeEmail(e)}
+                                value={email}
+                                required={true}
+                            />
+                            <Input 
+                                type="text"
+                                placeholder="Nome completo"
+                                onChange={(e) => handleChangeFullname(e)}
+                                value={fullName}
+                                required={true}
+                            />
+                            <Input 
+                                type="password"
+                                placeholder="Senha"
+                                onChange={(e) => handleChangePassword(e)}
+                                value={password}
+                                required={true}
+                            />
+                            <Input 
+                                type="password"
+                                placeholder="Repita a senha"
+                                onChange={(e) => handleChangePasswordAgain(e)}
+                                value={passwordAgain}
+                                required={true}
+                            />
+                            <button 
+                                type="submit" 
+                                className='bg-white rounded-md text-blue-950 hover:text-lime-700 sm:px-2  md:px-0 md:py-0'> 
+                                Registrar 
+                            </button>
+                            {
+                                userCreated ? (
+                                    <div className="flex flex-col justify-center items-center text-green-400">
+                                        <span>Usuário criado com sucesso</span>
+                                        <span>Redirecionando para página login em {timeLeft}s</span>
+                                    </div>
+                                ) : (
+                                    <></>
+                                )
+                            }
+                            {
+                                viewNotice ? (
+                                    <span className="flex flex-col justify-center items-center text-red-500">
+                                        {notice}
                                     </span>
-                                    <span>
-                                        Redirecionando para página login em {timeLeft}s
-                                    </span>
-                                </div>
-                            ) : (
-                                <></>
-                            )
-                        }
-                        {
-                            viewNotice ? (
-                                <span className="flex flex-col justify-center items-center text-red-500">
-                                    {notice}
-                                </span>
-                            ) : (
-                                <></>
-                            )
-                        }
-                    </form>
-                </main>
-                </section>
-            </main>
-            <footer className='flex justify-center text-white absolute bottom-20'>
-                <button type="button" className='group'>Já tem uma conta? <strong   className='group-hover:underline text-lime-500' onClick={handleRegister}>Entre aqui</strong> </button>
-            </footer>
-        </div>
+                                ) : (
+                                    <></>
+                                )
+                            }
+                        </form>
+                    </main>
+                </div>
+                <footer className='flex justify-center text-white absolute bottom-7 lg:bottom-20'>
+                    <button type="button" className='group'>Já tem uma conta? <strong className='group-hover:underline text-lime-500' onClick={handleRegister}>Entre aqui</strong> </button>
+                </footer>
+            </div>
         </>
+
     )
 }
