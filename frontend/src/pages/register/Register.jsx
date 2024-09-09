@@ -112,12 +112,12 @@ export function Register() {
             <Toaster richColors/>
             <div className='fixed top-0 bg-gradient-to-t from-gray-900 to-gray-950 w-full h-full flex justify-center items-center flex-col text-white'>
                 <div className='flex flex-col lg:flex-row gap-10 lg:gap-36 items-center lg:items-start'>
-                    <header className='flex flex-col items-center lg:items-start'>
-                        <h2 className='font-black text-7xl md:text-8xl lg:text-9xl text-lime-500'>AnotAi</h2>
-                        <p className='text-lg md:text-xl text-lime-500 mt-4'>O controle do dia em suas mãos.</p>
+                    <header className='flex flex-col lg:items-start'>
+                        <h2 className='font-black text-6xl md:text-7xl lg:text-9xl text-lime-500'>AnotAi</h2>
+                        <p className='text-sm md:text-xl text-lime-500 mt-4'>O controle do dia em suas mãos.</p>
                     </header>
-                    <main className='flex flex-col w-full max-w-sm gap-4'>
-                        <form className='flex flex-col w-full gap-4' onSubmit={fetchRegister}>
+                    <main className='flex flex-col w-52 md:w-72 lg:w-96 max-w-sm gap-4'>
+                        <form className='flex flex-col gap-4' onSubmit={fetchRegister}>
                             <Input 
                                 type="email"
                                 placeholder="Email"
@@ -173,7 +173,7 @@ export function Register() {
                         </form>
                     </main>
                 </div>
-                <footer className='flex justify-center text-white absolute bottom-7 lg:bottom-20'>
+                <footer className='flex justify-center text-white absolute bottom-7 lg:bottom-20 text-sm md:text-base lg:text-lg'>
                     <button type="button" className='group'>Já tem uma conta? <strong className='group-hover:underline text-lime-500' onClick={handleRegister}>Entre aqui</strong> </button>
                 </footer>
             </div>

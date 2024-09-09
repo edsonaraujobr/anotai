@@ -81,51 +81,53 @@ export function Login () {
 
     return (
         <>
-        <Toaster richColors/>
-        <div className='fixed top-0 bg-gradient-to-r from-gray-900 to-gray-950 w-lvw h-lvh justify-center items-center flex flex-col  text-white '>
-            <main className='flex gap-36'>
-                <section className='flex flex-col'>
-                <h2 className='font-black text-9xl text-lime-500'>AnotAi</h2>
-                <p className='text-xl text-lime-500'>O controle do dia em suas mãos.</p>
-                </section>
-                <section className='flex flex-col gap-8'>
-                <main className='flex flex-col w-96 gap-4 '>
-                    <form className='flex flex-col w-96 gap-4 ' onSubmit={(e) => fetchLogin(e)}>
-                        <Input 
-                            type="email"
-                            placeholder="Email"
-                            required={true}
-                            value={email}
-                            onChange={handleChangeEmail}
-                        />
-                        <Input 
-                            type="password"
-                            placeholder="Senha"
-                            required={true}
-                            value={password}
-                            onChange={handleChangePassword}
-                        />
-                        <button type="submit" className='bg-white rounded-md text-blue-950 hover:text-lime-700'> Entrar </button>
-                        <div className='text-lime-500 underline text-sm flex justify-end'>
-                            <span className='cursor-pointer '>Esqueci a senha</span>
-                        </div>
-                        {
-                            viewNotice ? (
-                                <span className="flex justify-center text-red-500">
-                                    Usuário não encontrado
-                                </span>
-                            ) : (
-                                <></>
-                            )
-                        }
-                    </form>
-                </main>
-                </section>
-            </main>
-            <footer className='flex justify-center text-white absolute bottom-20'>
-                <button type="button" className='group'>Não tem uma conta? <strong   className='group-hover:underline text-lime-500' onClick={handleRegister}>Cadastre-se aqui</strong> </button>
-            </footer>
-        </div>
+            <Toaster richColors/>
+            <div className='fixed top-0 bg-gradient-to-r from-gray-900 to-gray-950 w-lvw h-lvh justify-center items-center flex flex-col  text-white '>
+                <div className='flex flex-col lg:flex-row gap-10 lg:gap-36 items-center lg:items-start'>
+                    <header className='flex flex-col lg:items-start'>
+                        <h2 className='font-black text-6xl md:text-7xl lg:text-9xl text-lime-500'>AnotAi</h2>
+                        <p className='text-sm md:text-xl text-lime-500 mt-4'>O controle do dia em suas mãos.</p>
+                    </header>
+                    <main className='flex flex-col w-52 md:w-72 lg:w-96 max-w-sm gap-4 '>
+                        <form className='flex flex-col gap-4 ' onSubmit={(e) => fetchLogin(e)}>
+                            <Input 
+                                type="email"
+                                placeholder="Email"
+                                required={true}
+                                value={email}
+                                onChange={handleChangeEmail}
+                            />
+                            <Input 
+                                type="password"
+                                placeholder="Senha"
+                                required={true}
+                                value={password}
+                                onChange={handleChangePassword}
+                            />
+                            <button 
+                                type="submit" 
+                                className='bg-white rounded-md text-blue-950 hover:text-lime-700 sm:px-2  md:px-0 md:py-0'> 
+                                Entrar 
+                            </button>
+                            <div className='text-lime-500 underline text-sm flex justify-end'>
+                                <span className='cursor-pointer '>Esqueci a senha</span>
+                            </div>
+                            {
+                                viewNotice ? (
+                                    <span className="flex justify-center text-red-500">
+                                        Usuário não encontrado
+                                    </span>
+                                ) : (
+                                    <></>
+                                )
+                            }
+                        </form>
+                    </main>
+                </div>
+                <footer className='flex justify-center text-white absolute bottom-7 lg:bottom-20 text-sm md:text-base lg:text-lg'>
+                    <button type="button" className='group'>Não tem uma conta? <strong   className='group-hover:underline text-lime-500' onClick={handleRegister}>Cadastre-se aqui</strong> </button>
+                </footer>
+            </div>
         </>
     )
 }
