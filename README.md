@@ -22,8 +22,8 @@ $ docker compose up --build
 $ docker compose down -v
 ```
 <br>
-You can acess the endpoints locally with http://localhost:4444 <br>
-After that, you need to create an account after logging. Then, you can access the system.
+You can acess the endpoints locally bt clicking [here](http://localhost:4444) <br>
+After that, you need to create an account. Then, you can access the system.
 
 ## 💻 Entities
 
@@ -38,7 +38,7 @@ Method | Description | endpoint
 `PUT`| Update user | `/user/update/:id`
 `DELETE`| Delete user | `/user/delete/:id`
 
-* Example Body to create user
+* Example body to create user
   ```bash
   {
       "fullName": STRING(100),
@@ -61,7 +61,7 @@ Method | Description | endpoint
 `PUT`| Update tasks | `/task/update/:id`
 `DELETE`| Delete tasks | `/task/delete/:id`
 
-* Body
+* Example body to create task
   ```bash
   {
     "title": STRING(100),
