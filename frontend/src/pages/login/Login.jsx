@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Input } from "../../components/Input.jsx"
 import { useNavigate } from "react-router-dom"
+import { Toaster, toast } from 'sonner'
 
 export function Login () {
     const navigate = useNavigate();
@@ -46,6 +47,7 @@ export function Login () {
                 const expirationTime = decodedToken.exp * 1000; 
                 localStorage.setItem(`user_authToken`, result.token);
                 localStorage.setItem(`user_tokenExpiration`, expirationTime);
+                localStorage.setItem(`user_id`, result.id)
                 navigate(`/home`) 
             } else {
                 switch(response.status) {
@@ -54,28 +56,33 @@ export function Login () {
                         userNotFound();
                         break;
                     default:
-                        alert("Tente novamente mais tarde");
+                        toast.error('Tente novamente mais tarde.')
                         break;
                 }
                 
             }
         } catch (error) {
-            alert('Erro ao conectar ao servidor:');
+            toast.error('Erro ao conectar com servidor')
         }
     };
 
     useEffect(() => {
+        
         const token = localStorage.getItem(`user_authToken`);
         const tokenExpiration = localStorage.getItem(`user_tokenExpiration`);
+        const id = localStorage.getItem(`user_id`);
         
-        if (token && tokenExpiration) {
+        if (token && tokenExpiration && id) {
           localStorage.removeItem(`user_authToken`);
           localStorage.removeItem(`user_tokenExpiration`);
+          localStorage.removeItem(`user_id`);
         }
     })
 
     return (
-        <div className='fixed bg-gradient-to-r from-gray-900 to-gray-950 w-lvw h-lvh justify-center items-center flex flex-col  text-white '>
+        <>
+        <Toaster richColors/>
+        <div className='fixed top-0 bg-gradient-to-r from-gray-900 to-gray-950 w-lvw h-lvh justify-center items-center flex flex-col  text-white '>
             <main className='flex gap-36'>
                 <section className='flex flex-col'>
                 <h2 className='font-black text-9xl text-lime-500'>AnotAi</h2>
@@ -119,5 +126,6 @@ export function Login () {
                 <button type="button" className='group'>Não tem uma conta? <strong   className='group-hover:underline text-lime-500' onClick={handleRegister}>Cadastre-se aqui</strong> </button>
             </footer>
         </div>
+        </>
     )
 }

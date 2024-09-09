@@ -2,20 +2,37 @@ import { ChevronLeftIcon, ChevronRightIcon, PlusCircledIcon, Cross1Icon } from '
 import * as Tabs from '@radix-ui/react-tabs';
 import { PhotoMenu } from '../../components/PhotoMenu';
 import { Task } from '../../components/Task';
-import { useState, useEffect } from "react"
+import { useState, useEffect, act } from "react"
 import * as Dialog from '@radix-ui/react-dialog'; 
 import { useNavigate } from "react-router-dom"
+import { Toaster, toast } from 'sonner'
 
 export function Home () {
     const itens = ["Todas tarefas", "Tarefas pendentes", "Tarefas concluidas"]
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
     const [task, setTask] = useState([]);
+    const [taskCompleted, setTaskCompleted] = useState([]);
+    const [taskNoCompleted, setTaskNoCompleted] = useState([]);
     const navigate = useNavigate();
+    const [activeTab, setActiveTab] = useState(itens[0]);
+    const [title, setTitle] = useState('')
+    const [description, setDescription] = useState('')
+    const [open, setOpen] = useState(false);
 
     useEffect(() => {
-        fetchData(currentPage);
-    }, [currentPage]);
+        switch(activeTab) {
+            case itens[0]:
+                fetchData(currentPage);
+                break;
+            case itens[1]:
+                fetchDataNoCompleted(currentPage);
+                break;
+            case itens[2]:
+                fetchDataCompleted(currentPage);
+                break;
+        }
+    }, [currentPage, activeTab, task]);
 
     const nextPage = () => {
         if (currentPage < totalPages) {
@@ -31,18 +48,70 @@ export function Home () {
 
     const fetchData = async (page) => {
         try {
-            const response = await fetch(`http://localhost:3030/getAtendimentos?page=${page}&limit=3`, {
+            const userId = localStorage.getItem(`user_id`);
+            const token = localStorage.getItem('user_authToken');
+
+            const response = await fetch(`http://localhost:3030/task/readAll?page=${page}&limit=3`, {
                 method: 'POST',
                 headers: {
                     'Content-Type':'application/json',
+                    'Authorization': `Bearer ${token}`,
                 },
-                body: JSON.stringify( {id:clerk.id} )
+                body: JSON.stringify( {userId} )
             });
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                throw new Error('ERRO!');
             }
             const data = await response.json();
-            setTask(data.results);
+            setTask(data.tasks);
+            setTotalPages(data.totalPages);
+        } catch (error) {
+            console.error('Erro ao buscar dados:', error);
+        }
+    };
+
+    const fetchDataCompleted = async (page) => {
+        try {
+            const userId = localStorage.getItem(`user_id`);
+            const token = localStorage.getItem('user_authToken');
+
+            const response = await fetch(`http://localhost:3030/task/readAllCompleted?page=${page}&limit=3`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type':'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify( {userId} )
+            });
+            if (!response.ok) {
+                throw new Error('ERRO!');
+            }
+            const data = await response.json();
+            setTaskCompleted(data.tasks);
+            setTotalPages(data.totalPages);
+        } catch (error) {
+            console.error('Erro ao buscar dados:', error);
+        }
+    };
+
+    const fetchDataNoCompleted = async (page) => {
+        try {
+            const userId = localStorage.getItem(`user_id`);
+            const token = localStorage.getItem('user_authToken');
+
+            const response = await fetch(`http://localhost:3030/task/readAllNoCompleted?page=${page}&limit=3`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type':'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify( {userId} )
+            });
+            if (!response.ok) {
+                throw new Error('ERRO!');
+            }
+            const data = await response.json();
+            setTaskNoCompleted(data.tasks);
             setTotalPages(data.totalPages);
         } catch (error) {
             console.error('Erro ao buscar dados:', error);
@@ -72,17 +141,77 @@ export function Home () {
     const logout = () => {
         localStorage.removeItem('user_authToken');
         localStorage.removeItem('user_tokenExpiration');
+        localStorage.removeItem(`user_id`);
         navigate("/")
     }
+
+    const handleTabChange = (value) => {
+        setCurrentPage(1)
+        setActiveTab(value);
+    };
+
+    const handleChangeTitle = (e) => {
+        setTitle(e.target.value)
+    }
+
+    const handleChangeDescription = (e) => {
+        setDescription(e.target.value)
+    }
+
+    const cleanInputs = () => {
+        setTitle('')
+        setDescription('')
+    }
+
+    const fetchCreateTask = async (e) => {
+        e.preventDefault();
+        try {
+            const token = localStorage.getItem('user_authToken');
+            const id = localStorage.getItem(`user_id`);
+
+            const response = await fetch(`http://localhost:3030/task/create`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({ title, description, id}),
+            });
     
+            if (response.ok) {
+                toast.success('Tarefa criada com sucesso')
+                cleanInputs();
+                fetchData(currentPage);
+                setOpen(false);
+            } else {
+                toast.error('Erro ao criar tarefa')
+            }
+        } catch (error) {
+            toast.error('Erro com o servidor.')
+        }
+    }
+
+    const handleTaskRemoved = (taskId) => {
+        setTask(task.filter(task => task.id !== taskId));
+    };
+
     return (
-        <Dialog.Root>
-            <div className='flex flex-col bg-gray-900 w-lvw h-lvh text-lime-500 fixed'>
-                <Tabs.Root>
+        <Dialog.Root open={open} onOpenChange={setOpen}>
+        <Toaster richColors className='fixed'/>
+            <div className='flex flex-col bg-gray-900 w-lvw h-lvh text-lime-500 fixed top-0'>
+                <Tabs.Root
+                    value={activeTab}
+                    onValueChange={handleTabChange}
+                >
                     <header className="flex py-4 px-10 justify-between items-center gap-4 bg-gradient-to-r from-gray-900 to-gray-950 w-full h-14 text-lime-500">
                         <Tabs.List className='flex gap-8' >
                             {itens.map((item) => (
-                                <Tabs.Trigger key={item} value={item}>
+                                <Tabs.Trigger 
+                                    key={item} 
+                                    value={item}
+                                    className={`text-lime-500 text-sm p-2 duration-100 transition ease-in-out delay-15 ${activeTab === item? 'border-b-2 border-b-lime-400' : 'border-b-transparent'}`}
+                                
+                                >
                                     {item}
                                 </Tabs.Trigger>
                             ))}
@@ -91,11 +220,12 @@ export function Home () {
                             onClickedExit={logout}
                         />
                     </header>
-                    <div className='flex-grow flex items-end justify-end px-10 py-2'>
-                        <Dialog.Trigger>
+                    <div className='flex-grow flex items-end justify-end px-10 absolute right-6 top-16'>
+                        <Dialog.Trigger onClick={() => setOpen(true)}>
                             <button
                                 type="button"
-                                className='bg-green-700 hover:bg-green-600 rounded-md flex justify-center items-center gap-1 p-1 text-sm text-white'
+                                className='bg-lime-700 duration-100 transition ease-in-out delay-15 hover:bg-lime-600 rounded-md flex justify-center items-center gap-1 p-1 text-sm text-white'
+                                onClick={cleanInputs}
                             >
                                 <PlusCircledIcon />
                                 Adicionar tarefa
@@ -103,43 +233,45 @@ export function Home () {
                         </Dialog.Trigger>
                     </div>
                     <Dialog.Portal>
-                        <Dialog.Overlay className='inset-0 fixed bg-black/70'/>
-                        <Dialog.Content className='fixed overflow-hidden inset-0 md:inset-auto md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:top-1/2 md:max-w-[640px] w-[15vw] md:h-[35vh] bg-slate-700 md:rounded-md flex flex-col outline-none'>
-                            <Dialog.Close className='absolute top-0 right-0 bg-slate-800 p-1.5 text-slate-400 hover:text-slate-100'>
+                        <Dialog.Overlay className='inset-0 fixed bg-black/70 transition-opacity duration-300 opacity-100'/>
+                        <Dialog.Content className='fixed overflow-hidden inset-0 md:inset-auto md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:top-1/2 md:max-w-[640px] w-[35vw] md:h-[50vh] bg-gradient-to-b from-gray-800 to-gray-900 md:rounded-md flex flex-col outline-none transition-transform duration-300 transform-gpu scale-95 opacity-0 data-[state=open]:scale-100 data-[state=open]:opacity-100'>
+                            <Dialog.Close className='absolute top-0 right-0 bg-gray-800 p-1.5 text-lime-400 hover:text-lime-600'>
                                 <Cross1Icon/>
                             </Dialog.Close>
-                            <form className='flex w-full h-full justify-center items-center text-white'>
-                                <div className='flex flex-col gap-2'>
-                                    <div className='flex gap-2 flex-col'>
-                                        <h2 className='font-bold'>Tipo de refeição</h2>
-                                        <div className='flex gap-2'>
-                                            <input type="radio" name="refeicao" id="id-cafe-manha" value="café" required />
-                                            <label htmlFor="id-cafe-manha">Café da manhã</label>
-                                        </div>
-                                        <div className='flex gap-2'>
-                                            <input type="radio" name="refeicao" id="id-almoco" value="almoço"  required/>
-                                            <label htmlFor="id-almoco">Almoço</label>
-                                        </div>
-                                        <div className='flex gap-2'>
-                                            <input type="radio" name="refeicao" id="id-jantar" value="jantar"  required />
-                                            <label htmlFor="id-jantar">Jantar</label>
-                                        </div>
-                                    </div>
-                                    <button 
-                                        type="submit"
-                                        className='w-full bg-green-600 rounded-md hover:bg-green-700'
-                                    >
-                                        Iniciar
-                                    </button>
+                            <form className='flex flex-col w-full h-full justify-center items-center text-white p-4' onSubmit={fetchCreateTask}>
+                                <div className='flex flex-1 flex-col justify-center gap-1 w-[400px]'>
+                                    <input 
+                                        type="text"
+                                        placeholder='Título'
+                                        onChange={handleChangeTitle}
+                                        required
+                                        value={title}
+                                        className='bg-transparent border border-gray-700 px-4 outline-none text-lime-500 placeholder-lime-600'
+                                        maxLength={100}
+                                    />
+                                    <textarea 
+                                        type="text"
+                                        placeholder='Descrição'
+                                        onChange={handleChangeDescription}
+                                        required
+                                        value={description}
+                                        className='bg-transparent border border-gray-700 px-4 outline-none h-48 resize-none text-lime-500 placeholder-lime-600'
+                                    />
                                 </div>
+                                <button 
+                                    type="submit"
+                                    className='bg-lime-700 rounded-md hover:bg-lime-800 px-4'
+                                >
+                                    Criar tarefa
+                                </button>
                                 
                             </form>
                         </Dialog.Content>
                     </Dialog.Portal>
                     <Tabs.Content value={itens[0]}>
-                        <div className='flex flex-col justify-center items-center h-lvh gap-4 px-10'>
-                            <div className="flex flex-col  gap-4">
-                                { task.length > 0 ? 
+                        <div className='flex flex-col justify-center items-center h-lvh gap-4 px-10 '>
+                            <div className="flex flex-col gap-4 w-lvw h-lvh justify-center items-center">
+                                { task && task.length > 0 ? 
                                     (
                                         <>
                                             {task.map((item, index) => (
@@ -148,24 +280,25 @@ export function Home () {
                                                     title={item.title}
                                                     description={item.description}
                                                     date={item.createdAt}
+                                                    id={item.id}
+                                                    initialStatusCompleted={item.completed}
+                                                    onTaskRemoved={handleTaskRemoved}
                                                 />
                                             ))}
-                                            <div className='flex justify-center gap-2  items-center'>
+                                            <div className='flex justify-center gap-2  items-center absolute bottom-10 text-white'>
                                                 <div className='bg-slate-700 flex gap-0 rounded-full'>
                                                     <button
                                                         onClick={prevPage}
                                                         disabled={currentPage === 1}
-                                                        className='cursor-pointer'
                                                     >
-                                                        <ChevronLeftIcon className='size-6 hover:text-slate-950'/>
+                                                        <ChevronLeftIcon className={`size-6 ${currentPage !== 1 ? 'hover:text-slate-950 cursor-pointer duration-100 transition ease-in-out delay-15' : ''}`}/>
                                                     </button>
                                                     <span>{currentPage} de {totalPages}</span>
                                                     <button
                                                         onClick={nextPage}
                                                         disabled={currentPage === totalPages}
-                                                        className=' cursor-pointer'
                                                     >
-                                                        <ChevronRightIcon className='size-6 hover:text-slate-950'/>
+                                                        <ChevronRightIcon className={`size-6 ${totalPages !== 1 && totalPages !== currentPage ? 'hover:text-slate-950 cursor-pointer duration-100 transition ease-in-out delay-15' : ''}`}/>
                                                     </button>
                                                 </div>
                                             </div>
@@ -179,35 +312,36 @@ export function Home () {
                         </div>
                     </Tabs.Content>
                     <Tabs.Content value={itens[1]}>
-                    <div className='flex flex-col justify-center items-center h-lvh gap-4 px-10'>
-                            <div className="flex flex-col  gap-4">
-                                { task.length > 0 ? 
+                    <div className='flex flex-col justify-center items-center h-lvh gap-4 px-1'>
+                            <div className="flex flex-col items-center justify-center  gap-4">
+                                { taskNoCompleted && taskNoCompleted.length > 0 ? 
                                     (
                                         <>
-                                            {task.map((item, index) => (
+                                            {taskNoCompleted.map((item, index) => (
                                                 <Task
                                                     key={index}
                                                     title={item.title}
                                                     description={item.description}
                                                     date={item.createdAt}
+                                                    id={item.id}
+                                                    initialStatusCompleted={item.completed}
+                                                    onTaskRemoved={handleTaskRemoved}
                                                 />
                                             ))}
-                                            <div className='flex justify-center gap-2  items-center'>
+                                            <div className='flex justify-center gap-2  items-center absolute bottom-10'>
                                                 <div className='bg-slate-700 flex gap-0 rounded-full'>
                                                     <button
                                                         onClick={prevPage}
                                                         disabled={currentPage === 1}
-                                                        className='cursor-pointer'
                                                     >
-                                                        <ChevronLeftIcon className='size-6 hover:text-slate-950'/>
+                                                        <ChevronLeftIcon className={`size-6 ${currentPage !== 1 ? 'hover:text-slate-950 cursor-pointer' : ''}`}/>
                                                     </button>
                                                     <span>{currentPage} de {totalPages}</span>
                                                     <button
                                                         onClick={nextPage}
                                                         disabled={currentPage === totalPages}
-                                                        className=' cursor-pointer'
                                                     >
-                                                        <ChevronRightIcon className='size-6 hover:text-slate-950'/>
+                                                        <ChevronRightIcon className={`size-6 ${totalPages !== 1 && totalPages !== currentPage ? 'hover:text-slate-950 cursor-pointer' : ''}`}/>
                                                     </button>
                                                 </div>
                                             </div>
@@ -222,34 +356,35 @@ export function Home () {
                     </Tabs.Content>
                     <Tabs.Content value={itens[2]}>
                     <div className='flex flex-col justify-center items-center h-lvh gap-4 px-10'>
-                            <div className="flex flex-col  gap-4">
-                                { task.length > 0 ? 
+                            <div className="flex flex-col items-center gap-4">
+                                { taskCompleted && taskCompleted.length > 0 ? 
                                     (
                                         <>
-                                            {task.map((item, index) => (
+                                            {taskCompleted.map((item, index) => (
                                                 <Task
                                                     key={index}
                                                     title={item.title}
                                                     description={item.description}
                                                     date={item.createdAt}
+                                                    id={item.id}
+                                                    initialStatusCompleted={item.completed}
+                                                    onTaskRemoved={handleTaskRemoved}
                                                 />
                                             ))}
-                                            <div className='flex justify-center gap-2  items-center'>
+                                            <div className='flex justify-center gap-2  items-center absolute bottom-10'>
                                                 <div className='bg-slate-700 flex gap-0 rounded-full'>
                                                     <button
                                                         onClick={prevPage}
                                                         disabled={currentPage === 1}
-                                                        className='cursor-pointer'
                                                     >
-                                                        <ChevronLeftIcon className='size-6 hover:text-slate-950'/>
+                                                        <ChevronLeftIcon className={`size-6 ${currentPage !== 1 ? 'hover:text-slate-950 cursor-pointer' : ''}`}/>
                                                     </button>
                                                     <span>{currentPage} de {totalPages}</span>
                                                     <button
                                                         onClick={nextPage}
                                                         disabled={currentPage === totalPages}
-                                                        className=' cursor-pointer'
                                                     >
-                                                        <ChevronRightIcon className='size-6 hover:text-slate-950'/>
+                                                        <ChevronRightIcon className={`size-6 ${totalPages !== 1 && totalPages !== currentPage ? 'hover:text-slate-950 cursor-pointer' : ''}`}/>
                                                     </button>
                                                 </div>
                                             </div>

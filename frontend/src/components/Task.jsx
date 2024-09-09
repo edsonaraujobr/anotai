@@ -1,24 +1,100 @@
-import { ReloadIcon, CheckIcon, Cross2Icon, DoubleArrowLeftIcon, DoubleArrowRightIcon, GearIcon, CheckboxIcon, BoxIcon } from '@radix-ui/react-icons';
+import { Cross1Icon, Cross2Icon, CheckIcon, DoubleArrowLeftIcon, DoubleArrowRightIcon, GearIcon, CheckboxIcon, BoxIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';
+import moment from "moment";
+import * as Dialog from '@radix-ui/react-dialog'; 
+import { Toaster, toast } from 'sonner'
 
-export function Task({title, description, date }) {
-    const [completed, setCompleted] = useState(false)
+export function Task({title, description, date, id, initialStatusCompleted, onTaskRemoved }) {
+    const [completed, setCompleted] = useState(initialStatusCompleted)
+    const [titleTaskLocale, setTitleTaskLocale] = useState(title);
+    const [descriptionTaskLocale, setDescriptionLocale] = useState(description)
+    const [open, setOpen] = useState(false);
 
     const handleCompletedTask = () => {
-        setCompleted(!completed)
+        const newCompleted = !completed
+        fetchCompletedTask(newCompleted);
     }
 
-    const handleSetTask = () => {
-
+    const fetchCompletedTask = async (newCompleted) => {
+        try {
+            const token = localStorage.getItem('user_authToken');
+            const response = await fetch(`http://localhost:3030/task/update/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({completed: newCompleted}),
+            });
+    
+            if (response.ok) {
+                setCompleted(newCompleted);
+            } else {
+                toast.error('Erro ao atualizar tarefa')
+            }
+        } catch (error) {
+            toast.error('Erro com o servidor.')
+        }
     }
 
-    const handleRemoveTask = () => {
+    const fetchRemoveTask = async () => {
+        try {
+            const token = localStorage.getItem('user_authToken');
+            const response = await fetch(`http://localhost:3030/task/delete/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+    
+            if (response.ok) {
+                toast.success('Tarefa removida com sucesso')
+                onTaskRemoved()
+            } else {
+                toast.error('Erro ao criar tarefa')
+            }
+        } catch (error) {
+            toast.error('Erro com o servidor.')
+        }
+    }
 
+    const fetchUpdateTask = async (e) => {
+        e.preventDefault();
+        try {
+            const token = localStorage.getItem('user_authToken');
+            const response = await fetch(`http://localhost:3030/task/update/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({title: titleTaskLocale, description: descriptionTaskLocale}),
+            });
+    
+            if (response.ok) {
+                toast.success('Tarefa atualizada com sucesso')
+                setOpen(false);
+            } else {
+                toast.error('Erro ao atualizar tarefa')
+            }
+        } catch (error) {
+            toast.error('Erro com o servidor.')
+        }
+    }
+
+
+    const handleChangeTitle = (e) => {
+        setTitleTaskLocale(e.target.value)
+    }
+
+    const handleChangeDescription = (e) => {
+        setDescriptionLocale(e.target.value)
     }
 
     return (
-        <main className='flex flex-col items-center justify-center'>
-            <div className="flex justify-center items-center gap-36 border rounded-md p-4">
+        <Dialog.Root open={open} onOpenChange={setOpen}>
+            <main className="flex justify-between items-center gap-36 border rounded-md p-4 text-white w-[1200px] hover:scale-105 duration-300 transition ease-in-out delay-15">
                 <div className='flex justify-center items-center gap-4'>
                     {
                         completed ? (
@@ -29,16 +105,55 @@ export function Task({title, description, date }) {
                     }
                     
                     <div className=''>
-                        <h2 className='text-xl font-black'>Título</h2>
-                        <p className='text-sm font-light text-justify'>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aliquam adipisci reiciendis magni earum cupiditate doloremque saepe, aspernatur cumque omnis vel, molestias exercitationem consectetur laudantium et beatae voluptate veritatis ipsum consequatur?</p>
-                        <span className='text-xs'>Criado em 04 de setembro às 21:26</span>
+                        <h2 className='text-xl font-black '>{title}</h2>
+                        <p className='text-sm font-light text-justify'>{description}</p>
+                        <span className='text-xs'>Criado em {moment(date).format('DD-MM-YYYY')} às {moment(date).format('HH:mm:ss')}</span>
                     </div>
                 </div>
                 <div className='flex gap-4 justify-center items-center'>
-                    <GearIcon className='size-6 hover:text-blue-600 cursor-pointer' onClick={handleSetTask}/>
-                    <Cross2Icon className='size-7 hover:text-red-600 cursor-pointer' onClick={handleRemoveTask}/>
+                    <Dialog.Trigger onClick={() => setOpen(true)}>
+                        <GearIcon className='size-6 hover:text-blue-600 cursor-pointer'/>
+                    </Dialog.Trigger>
+                    <Cross2Icon className='size-7 hover:text-red-600 cursor-pointer' onClick={fetchRemoveTask}/>
                 </div>
-            </div>
-        </main>
+            </main>
+            <Dialog.Portal>
+            <Dialog.Overlay className='inset-0 fixed bg-black/70'/>
+                        <Dialog.Content className='fixed overflow-hidden inset-0 md:inset-auto md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:top-1/2 md:max-w-[640px] w-[35vw] md:h-[50vh] bg-gradient-to-b from-gray-800 to-gray-900 md:rounded-md flex flex-col outline-none'>
+                            <Dialog.Close className='absolute top-0 right-0 bg-gray-800 p-1.5 text-lime-400 hover:text-lime-600'>
+                                <Cross1Icon/>
+                            </Dialog.Close>
+                            <form className='flex flex-col w-full h-full justify-center items-center text-white p-4' onSubmit={(e) => fetchUpdateTask(e)}>
+                                <div className='flex flex-1 flex-col justify-center gap-1 w-[400px]'>
+                                    <input 
+                                        type="text"
+                                        placeholder='Título'
+                                        required
+                                        value={titleTaskLocale}
+                                        onChange={handleChangeTitle}
+                                        className='bg-transparent border border-gray-700 px-4 outline-none text-lime-500 placeholder-lime-600'
+                                        maxLength={100}
+                                    />
+                                    <textarea 
+                                        type="text"
+                                        placeholder='Descrição'
+                                        value={descriptionTaskLocale}
+                                        onChange={handleChangeDescription}
+                                        required
+                                        className='bg-transparent border border-gray-700 px-4 outline-none h-48 resize-none text-lime-500 placeholder-lime-600'
+                                    />
+                                </div>
+                                <button 
+                                    type="submit"
+                                    className='bg-lime-700 rounded-md hover:bg-lime-800 px-4'
+                                >
+                                    Salvar alterações
+                                </button>
+                                
+                            </form>
+                        </Dialog.Content>
+            </Dialog.Portal>
+        </Dialog.Root>
+
     )
 }
