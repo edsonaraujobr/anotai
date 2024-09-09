@@ -209,7 +209,7 @@ export function Home () {
                                 <Tabs.Trigger 
                                     key={item} 
                                     value={item}
-                                    className={`text-lime-500 text-sm p-2 duration-100 transition ease-in-out delay-15 ${activeTab === item? 'border-b-2 border-b-lime-400' : 'border-b-transparent'}`}
+                                    className={`text-lime-500 text-xs md:text-lg lg:text-lg p-2 duration-100 transition ease-in-out delay-15  ${activeTab === item? 'border-b-2 border-b-lime-400' : 'border-b-transparent'}`}
                                 
                                 >
                                     {item}
@@ -220,7 +220,7 @@ export function Home () {
                             onClickedExit={logout}
                         />
                     </header>
-                    <div className='flex-grow flex items-end justify-end px-10 absolute right-6 top-16'>
+                    <div className='flex-grow flex items-end justify-end px-10 absolute md:right-6 md:top-16 top-16 right-16'>
                         <Dialog.Trigger onClick={() => setOpen(true)}>
                             <button
                                 type="button"
@@ -234,43 +234,41 @@ export function Home () {
                     </div>
                     <Dialog.Portal>
                         <Dialog.Overlay className='inset-0 fixed bg-black/70 transition-opacity duration-300 opacity-100'/>
-                        <Dialog.Content className='fixed overflow-hidden inset-0 md:inset-auto md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:top-1/2 md:max-w-[640px] w-[35vw] md:h-[50vh] bg-gradient-to-b from-gray-800 to-gray-900 md:rounded-md flex flex-col outline-none transition-transform duration-300 transform-gpu scale-95 opacity-0 data-[state=open]:scale-100 data-[state=open]:opacity-100'>
+                        <Dialog.Content className='fixed inset-0 sm:inset-auto sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:top-1/2 sm:max-w-[90vw] sm:max-h-[90vh] md:max-w-[640px] lg:w-[35vw] lg:h-[50vh] bg-gradient-to-b from-gray-800 to-gray-900 rounded-md flex flex-col outline-none transition-transform duration-300 transform-gpu scale-95 opacity-0 data-[state=open]:scale-100 data-[state=open]:opacity-100'>
                             <Dialog.Close className='absolute top-0 right-0 bg-gray-800 p-1.5 text-lime-400 hover:text-lime-600'>
                                 <Cross1Icon/>
                             </Dialog.Close>
                             <form className='flex flex-col w-full h-full justify-center items-center text-white p-4' onSubmit={fetchCreateTask}>
-                                <div className='flex flex-1 flex-col justify-center gap-1 w-[400px]'>
+                                <div className='flex flex-1 flex-col justify-center gap-4 md:gap-1 lg:gap-1 xl:gap-1 w-full max-w-[90vw] sm:max-w-[400px]'>
                                     <input 
                                         type="text"
                                         placeholder='Título'
                                         onChange={handleChangeTitle}
                                         required
                                         value={title}
-                                        className='bg-transparent border border-gray-700 px-4 outline-none text-lime-500 placeholder-lime-600'
+                                        className='bg-transparent border border-gray-700 px-4 outline-none text-lime-500 placeholder-lime-600 w-full'
                                         maxLength={100}
                                     />
                                     <textarea 
-                                        type="text"
                                         placeholder='Descrição'
                                         onChange={handleChangeDescription}
                                         required
                                         value={description}
-                                        className='bg-transparent border border-gray-700 px-4 outline-none h-48 resize-none text-lime-500 placeholder-lime-600'
-                                    />
+                                        className='bg-transparent border border-gray-700 px-4 outline-none h-72 md:h-32 lg:h-32 xl:h-32 text-lime-500 resize-none placeholder-lime-600 w-full'
+                                        />
                                 </div>
                                 <button 
                                     type="submit"
-                                    className='bg-lime-700 rounded-md hover:bg-lime-800 px-4'
+                                    className='bg-lime-700 rounded-md hover:bg-lime-800 px-4 mt-4'
                                 >
                                     Criar tarefa
                                 </button>
-                                
                             </form>
                         </Dialog.Content>
                     </Dialog.Portal>
+
                     <Tabs.Content value={itens[0]}>
                         <div className='flex flex-col justify-center items-center h-lvh gap-4 px-10 '>
-                            <div className="flex flex-col gap-4 w-lvw h-lvh justify-center items-center">
                                 { task && task.length > 0 ? 
                                     (
                                         <>
@@ -308,7 +306,6 @@ export function Home () {
                                         <p> Nenhuma tarefa criada. </p>
                                     )
                                 }
-                            </div>
                         </div>
                     </Tabs.Content>
                     <Tabs.Content value={itens[1]}>
