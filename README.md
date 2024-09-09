@@ -22,7 +22,7 @@ $ docker compose up --build
 $ docker compose down -v
 ```
 <br>
-You can acess the endpoints locally with http://localhost:4444
+You can acess the endpoints locally with http://localhost:4444 <br>
 After that, you need to create an account after logging. Then, you can access the system.
 
 ## 💻 Entities
