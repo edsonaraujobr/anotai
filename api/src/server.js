@@ -12,5 +12,5 @@ app.use("/",userRouter);
 app.use("/",taskRouter);
 
 app.listen('3030', () => {
-    console.log("Executando na porta 3030")
+    console.log("Backend executando com sucesso!")
 });
