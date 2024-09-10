@@ -1,6 +1,6 @@
 ## 📋 Project
 
-AnotaAi is a full stack application developed as a challenge for an intern position at jackexperts. You can save your tasks, update them and delete them. Application developed with user experience in mind
+AnotAi is a full stack application developed as a challenge for an intern position at jackexperts. You can save your tasks, update them and delete them. Application developed with user experience in mind
 <br>
 
 ## 💻 How to install?
@@ -13,7 +13,7 @@ In your command line:
 
 ```bash
 # Clone the repository
-$ git clone https://github.com/edsonaraujobr/anotaai
+$ git clone https://github.com/edsonaraujobr/anotai
 
 # Run the application through docker
 $ docker compose up --build
@@ -22,7 +22,7 @@ $ docker compose up --build
 $ docker compose down -v
 ```
 <br>
-You can acess the endpoints locally with link: http://localhost:4444  <br>
+You can acess the endpoints locally with link: http://localhost:9000  <br>
 After that, you need to create an account. Then, you can access the system.
 
 ## 💻 Entities
@@ -80,7 +80,7 @@ These are the technologies used in this project
 
 ## 📝 License
 
-This project are is under the MIT license. See the [LICENSE](https://github.com/edsonaraujobr/anotaai/blob/main/LICENSE) to get more details.
+This project are is under the MIT license. See the [LICENSE](https://github.com/edsonaraujobr/anotai/blob/main/LICENSE) to get more details.
 
 
 
