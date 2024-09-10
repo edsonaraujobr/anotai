@@ -1,6 +1,7 @@
 ## 📋 Project
 
-AnotAi is a full stack application developed as a challenge for an intern position at jackexperts. You can save your tasks, update them and delete them. Application developed with user experience in mind
+AnotAi is a full stack application developed as a challenge for an intern position at jackexperts. You can save your tasks, update them and delete them. Application developed with user experience in mind. <br>
+I sought to develop using all the knowledge acquired in recent years. I thought about implementing a profile photo and the option to forget my password, in addition to verification to complete a valid task, but due to lack of time, I implemented what was essential.
 <br>
 
 ## 💻 How to install?
